@@ -1,0 +1,102 @@
+<html>
+  <head>
+    <title>Ratings for Films on BBC iPlayer</title>
+
+    <style scoped>
+    .gelicon {
+      display: none
+    }
+
+    .poster-container {
+      max-width: 150px;
+      overflow: hidden;
+    }
+
+    .poster {
+      max-height: 200px;
+    }
+
+    .programme__titles {
+      font-size: 1.6vh;
+    }
+
+    table {
+      border-collapse: border-collapse:
+      width: 100%;
+    }
+
+    table tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+
+    table tr{
+      border-bottom: 1px solid #ddd;
+    }
+
+    table td{
+      padding: 8px;
+      vertical-align: top;
+    }
+
+    body{
+      font-family: sans-serif;
+    }
+
+    a {
+      color: #4579a6;
+    }
+    </style>
+
+  </head>
+
+  <body>
+    <table>
+      {{#films}}
+      <tr>
+        <td>
+          <div class="poster-container">
+            <img src="{{omdb.Poster}}" class="poster"/>
+          </div>
+        </td>
+        <td>
+          {{#omdb.Error}}
+          {{{bbc.html}}}
+          {{/omdb.Error}}
+
+          {{^omdb.Error}}
+          <a href="https://www.bbc.co.uk/iplayer/episode/{{bbc.id}}">
+            <h2 class="programme__titles">{{title}} ({{omdb.Year}})</h2>
+          </a>
+          <small>
+            {{omdb.Rated}} | {{omdb.Runtime}} | {{omdb.Genre}} | {{omdb.Director}} |
+            <a href="https://www.imdb.com/title/{{omdb.imdbID}}/">IMDb</a>
+          </small>
+          <p>{{omdb.Plot}}</p>
+
+          {{/omdb.Error}}
+
+        </td>
+        <td>
+          {{#omdb.Ratings}}
+          <strong>{{Value}}</strong> <small>{{Source}}</small><br />
+          {{/omdb.Ratings}}
+          <br />
+          <small>{{omdb.Awards}}</small>
+
+          {{^omdb.Ratings}}
+          <a href="https://www.imdb.com/find?q={{title}}">Search IMDb</a>
+          {{/omdb.Ratings}}
+        </td>
+      </tr>
+      {{/films}}
+    </table>
+
+    <p>Films currently available on BBC Iplayer ordered by IMDb rating. Film
+    lookup data provided by <a href="http://omdbapi.com">OMDb API</a>
+    </p>
+    <p><a href="/films.json">Download JSON</p>
+    <p><a
+      href="https://github.com/michaelwood/anygoodfilmsoniplayer">Source
+      code</a>
+
+</html>
