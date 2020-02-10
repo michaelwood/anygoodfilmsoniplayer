@@ -12,6 +12,7 @@ import requests
 import time
 import json
 import pystache
+import datetime
 
 
 bbc_url = "https://www.bbc.co.uk/programmes/formats/films/player"
@@ -58,7 +59,11 @@ def render_html(films):
         template = template_f.read()
 
     with open("index.html", "w") as output_f:
-        output_f.write(pystache.render(template, {"films": films_sorted}))
+        output_f.write(pystache.render(
+            template,
+            {"films": films_sorted,
+             "updated": datetime.datetime.now().strftime("%c")}
+        ))
 
 
 def main():
