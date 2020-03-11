@@ -4,24 +4,26 @@
 
     <style scoped>
     .gelicon {
-      display: none
+      display: none;
     }
 
     .poster-container {
-      max-width: 150px;
       overflow: hidden;
-    }
-
-    .poster {
-      max-height: 200px;
+      margin-top: 1.6em;
     }
 
     .programme__titles {
-      font-size: 1.6vh;
+      font-size: 1.6em;
+    }
+
+    .info {
+      display: flex;
+      min-width: 75%;
+      flex-direction: column;
     }
 
     table {
-      border-collapse: border-collapse:
+      border-collapse: border-collapse;
       width: 100%;
     }
 
@@ -29,14 +31,14 @@
       background-color: #f2f2f2;
     }
 
-    table tr{
+    table tr {
       border-bottom: 1px solid #ddd;
     }
 
-    table td{
-      padding: 0.8em;
+    table td {
+      padding: 0.5em;
       vertical-align: top;
-      font-size: 1.6vh;
+      font-size: 1em;
     }
 
     body{
@@ -60,33 +62,37 @@
           </div>
         </td>
         <td>
-          {{#omdb.Error}}
-          {{{bbc.html}}}
-          {{/omdb.Error}}
+          <div class="info">
+            <div>
+              {{#omdb.Error}}
+              {{{bbc.html}}}
+              {{/omdb.Error}}
 
-          {{^omdb.Error}}
-          <a href="https://www.bbc.co.uk/iplayer/episode/{{bbc.id}}">
-            <h2 class="programme__titles">{{title}} ({{omdb.Year}})</h2>
-          </a>
-          <small>
-            {{omdb.Rated}} | {{omdb.Runtime}} | {{omdb.Genre}} | {{omdb.Director}} |
-            <a href="https://www.imdb.com/title/{{omdb.imdbID}}/">IMDb</a>
-          </small>
-          <p>{{omdb.Plot}}</p>
+              {{^omdb.Error}}
+              <a href="https://www.bbc.co.uk/iplayer/episode/{{bbc.id}}">
+                <h2 class="programme__titles">{{title}} ({{omdb.Year}})</h2>
+              </a>
+              <small>
+                {{omdb.Rated}} | {{omdb.Runtime}} | {{omdb.Genre}} | {{omdb.Director}} |
+                <a href="https://www.imdb.com/title/{{omdb.imdbID}}/">IMDb</a>
+              </small>
+              <p>{{omdb.Plot}}</p>
 
-          {{/omdb.Error}}
+              {{/omdb.Error}}
+            </div>
 
-        </td>
-        <td>
-          {{#omdb.Ratings}}
-          <strong>{{Value}}</strong> <small>{{Source}}</small><br />
-          {{/omdb.Ratings}}
-          <br />
-          <small>{{omdb.Awards}}</small>
+            <div>
+              {{#omdb.Ratings}}
+              <strong>{{Value}}</strong> <small>{{Source}}</small><br />
+              {{/omdb.Ratings}}
+              <br />
+              <small>{{omdb.Awards}}</small>
 
-          {{^omdb.Ratings}}
-          <a href="https://www.imdb.com/find?q={{title}}">Search IMDb</a>
-          {{/omdb.Ratings}}
+              {{^omdb.Ratings}}
+              <a href="https://www.imdb.com/find?q={{title}}">Search IMDb</a>
+              {{/omdb.Ratings}}
+            </div>
+          </div>
         </td>
       </tr>
       {{/films}}
