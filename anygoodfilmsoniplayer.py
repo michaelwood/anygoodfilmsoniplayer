@@ -13,6 +13,7 @@ import time
 import json
 import pystache
 import datetime
+import argparse
 
 
 bbc_url = "https://www.bbc.co.uk/programmes/formats/films/player"
@@ -69,17 +70,31 @@ def render_html(films):
 def main():
     film_details = []
 
-    films_page = requests.get(bbc_url)
+    parser = argparse.ArgumentParser()
 
-    soup = BeautifulSoup(films_page.text, "html.parser")
+    parser.add_argument("--from-file",
+                        help="Use json file input to generate output """
+                        """instead of from the web""")
 
-    films = soup.find_all("div", class_="programme")
+    args = parser.parse_args()
 
-    for film in films:
-        film_details.append(extract_film_info(film))
+    if args.from_file:
+        # Fetch films from file
+        with open(args.from_file, "r") as f:
+            film_details = json.load(f)
+    else:
+        # Fetch films from the interwebs
+        films_page = requests.get(bbc_url)
 
-    with open("films.json", "w") as json_out:
-        json_out.write(json.dumps(film_details, indent=2))
+        soup = BeautifulSoup(films_page.text, "html.parser")
+
+        films = soup.find_all("div", class_="programme")
+
+        for film in films:
+            film_details.append(extract_film_info(film))
+
+        with open("films.json", "w") as json_out:
+            json_out.write(json.dumps(film_details, indent=2))
 
     render_html(film_details)
 
