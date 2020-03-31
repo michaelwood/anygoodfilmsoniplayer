@@ -1,6 +1,8 @@
 <html>
   <head>
-    <title>Ratings for Films on BBC iPlayer</title>
+    <title>Films on BBC iPlayer ordered by ratings</title>
+
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
 
     <style scoped>
     .gelicon {
@@ -22,6 +24,20 @@
       flex-direction: column;
     }
 
+    .selected {
+      font-weight:bold;
+      color: #4579a6 !important;
+    }
+
+    .sort-btn {
+      text-decoration: none;
+      color: #7c93a7;
+    }
+
+    #sort-indicator-up, #sort-indicator-down {
+      display: none;
+    }
+
     table {
       border-collapse: border-collapse;
       width: 100%;
@@ -41,6 +57,20 @@
       font-size: 1em;
     }
 
+    table th {
+      text-align: left;
+    }
+
+    th a {
+      font-weight: normal;
+    }
+
+    th {
+      padding: 0.5em;
+      font-size: 1em;
+    }
+
+
     body{
       font-family: sans-serif;
     }
@@ -48,12 +78,32 @@
     a {
       color: #4579a6;
     }
+
+    thead {
+      background-color: #f2f2f2;
+    }
     </style>
 
   </head>
 
   <body>
-    <table>
+    <table id="main-table">
+      <thead>
+        <tr>
+          <th>Films on iPlayer</th>
+          <th>Sort by rating:
+            <a href="#" class="sort-btn selected"
+              data-metric="internet_movie_database">IMDB</a> |
+            <a href="#" class="sort-btn"
+              data-metric="metacritic">Metacritic</a> |
+            <a href="#" class="sort-btn" data-metric="rotten_tomatoes">Rotten
+              Tomatoes</a> | <span id="sort-indicator-up" style="display:
+              inline">&uArr;</span>
+            <span id="sort-indicator-down">&dArr;</span>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
       {{#films}}
       <tr>
         <td>
@@ -61,10 +111,14 @@
             <img src="{{omdb.Poster}}" class="poster"/>
           </div>
         </td>
-        <td>
+        <td {{#_ratings}}
+							data-{{source}}={{value}}
+						{{/_ratings}}
+				>
           <div class="info">
             <div>
               {{#omdb.Error}}
+              <i style="color: red">Couldn't find additional film info</i>
               {{{bbc.html}}}
               {{/omdb.Error}}
 
@@ -96,6 +150,7 @@
         </td>
       </tr>
       {{/films}}
+      </tbody>
     </table>
 
     <p>Films currently available on BBC Iplayer ordered by IMDb rating. Film
@@ -108,4 +163,95 @@
     </small>
   </body>
 
+  <script>
+
+  $(document).ready(function(){
+
+    $(".sort-btn").click(function(e){
+      e.preventDefault();
+
+      let metric = $(this).data("metric");
+
+      $(".sort-btn").removeClass("selected");
+      sortTable(metric);
+      window.location.hash = metric;
+      $(this).addClass("selected");
+    });
+
+    if (window.location.hash){
+      sortTable(window.location.hash.replace("#",""));
+    }
+  });
+
+  /* Slow */
+  function sortTable(metric) {
+    var table, rows, switching;
+    var i, a, b, shouldSwitch, direction, switchcount = 0;
+
+    table = $("#main-table");
+    table.hide();
+
+    switching = true;
+    direction = "asc";
+
+    while (switching) {
+      switching = false;
+      rows = table.find("tr").get();
+
+      /* Start at 1 to ignore the th row */
+      for (i = 1; i < (rows.length - 1); i++) {
+        shouldSwitch = false;
+        a = $(rows[i]).children("[data-"+metric+"]").data(metric);
+        b = $(rows[i + 1]).children("[data-"+metric+"]").data(metric);
+
+        if (!a){
+          a = 0;
+        }
+
+        if (!b){
+          b = 0;
+        }
+
+        if (direction == "asc") {
+          if (a < b) {
+            shouldSwitch = true;
+            break;
+          }
+        } else if (direction == "desc") {
+          if (a > b) {
+            shouldSwitch = true;
+            break;
+          }
+        }
+      }
+
+      if (shouldSwitch) {
+        rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+        switching = true;
+        switchcount++;
+      } else {
+        if (switchcount == 0 && direction == "asc") {
+          direction = "desc";
+          switching = true;
+        }
+      }
+
+      /* Safety net O(n^2) */
+      if (switchcount > rows.length * rows.length){
+        console.log("Something gone wrong");
+        break;
+      }
+    }
+
+    if (direction == "asc"){
+      $("#sort-indicator-up").show();
+      $("#sort-indicator-down").hide();
+    } else {
+      $("#sort-indicator-down").show();
+      $("#sort-indicator-up").hide();
+    }
+
+    table.show();
+  }
+  </script>
 </html>
