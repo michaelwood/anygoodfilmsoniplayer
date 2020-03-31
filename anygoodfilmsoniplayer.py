@@ -30,14 +30,40 @@ def extract_film_info(film):
         api_key
     ))
 
+    omdb_info = r.json()
+
+    # Internal object for easier sorting
+    _ratings = []
+
+    # We might not find omdb_info for this film
+    try:
+        for rating in omdb_info['Ratings']:
+            val = 0
+            _rating = {}
+            _rating['source'] = rating['Source'].lower().replace(" ", "_")
+
+            # Parse the values
+            if "internet" in _rating['source'] or \
+               "metacritic" in _rating["source"]:
+                val = float(rating['Value'].split("/")[0])
+
+            if "rotten" in _rating['source']:
+                val = int(rating['Value'].split("%")[0])
+
+            _rating['value'] = val
+
+            _ratings.append(_rating)
+    except KeyError:
+        pass
+
     info = {
         "bbc": {
             "html": str(film),
             "id": film['data-pid'],
         },
         "title": title,
-        "omdb": r.json(),
-
+        "omdb": omdb_info,
+        "_ratings": _ratings,
     }
 
     # Avoid hitting omdbapi too hard
