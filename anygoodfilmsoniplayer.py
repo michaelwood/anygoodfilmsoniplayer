@@ -25,10 +25,9 @@ with open("omdb_api_key.txt") as omdb_api_key:
 def extract_film_info(film):
     title = film.select_one(".programme__title").text
 
-    r = requests.get("http://www.omdbapi.com/?t={}&apikey={}".format(
-        title,
-        api_key
-    ))
+    omdbapi_url = "http://www.omdbapi.com/"
+
+    r = requests.get(omdbapi_url, params={"t": title, "apikey": api_key})
 
     omdb_info = r.json()
 
