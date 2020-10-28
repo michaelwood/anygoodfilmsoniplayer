@@ -108,15 +108,30 @@ def main():
         with open(args.from_file, "r") as f:
             film_details = json.load(f)
     else:
-        # Fetch films from the interwebs
-        films_page = requests.get(bbc_url)
+        # Fetch films from the bbc interwebs
+        # Start at page 1 of the films page
+        page = 1
+        while True:
+            if page == 1:
+                films_page = requests.get(bbc_url)
+            else:
+                films_page = requests.get(bbc_url, params={"page": page})
 
-        soup = BeautifulSoup(films_page.text, "html.parser")
+            soup = BeautifulSoup(films_page.text, "html.parser")
 
-        films = soup.find_all("div", class_="programme")
+            if "Sorry, that page was not found" in soup.title.string:
+                break
 
-        for film in films:
-            film_details.append(extract_film_info(film))
+            if page > 100:
+                print("Emergency break applied")
+                break
+
+            films = soup.find_all("div", class_="programme")
+
+            for film in films:
+                film_details.append(extract_film_info(film))
+
+            page = page + 1
 
         with open("films.json", "w") as json_out:
             json_out.write(json.dumps(film_details, indent=2))
