@@ -1,8 +1,13 @@
 <html>
   <head>
-    <title>Films on BBC iPlayer ordered by ratings</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Films on UK On-demand ordered by ratings</title>
 
     <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
 
     <style scoped>
     .gelicon {
@@ -11,7 +16,6 @@
 
     .poster-container {
       overflow: hidden;
-      margin-top: 1.6em;
     }
 
     .programme__titles {
@@ -38,60 +42,31 @@
       display: none;
     }
 
-    table {
-      border-collapse: border-collapse;
-      width: 100%;
-    }
-
-    table tr:nth-child(even) {
-      background-color: #f2f2f2;
-    }
-
-    table tr {
-      border-bottom: 1px solid #ddd;
-    }
-
-    table td {
-      padding: 0.5em;
-      vertical-align: top;
-      font-size: 1em;
-    }
-
-    table th {
-      text-align: left;
-    }
-
-    th a {
-      font-weight: normal;
-    }
-
-    th {
-      padding: 0.5em;
-      font-size: 1em;
+    #film-items .row:nth-child(even){
+      background-color: #2c3034;
     }
 
 
-    body{
-      font-family: sans-serif;
+
+    body {
+      color: white;
+      background-color: #212529;
     }
 
-    a {
-      color: #4579a6;
-    }
-
-    thead {
-      background-color: #f2f2f2;
-    }
     </style>
 
   </head>
 
-  <body>
-    <table id="main-table">
-      <thead>
-        <tr>
-          <th>Films on iPlayer</th>
-          <th>Sort by rating:
+  <body class="bg-dark">
+   <div class="container">
+    <div class="row mt-3">
+      <div class="col-sm border-bottom border-top">
+        Films on
+       <label><input type="checkbox" value="BBC" class="provider-switch" checked>BBC</label>
+       <label><input type="checkbox" value="Channel4" class="provider-switch" checked>Channel4</label>
+
+       <p>
+      <!--Sort by rating:
             <a href="#" class="sort-btn selected"
               data-metric="internet_movie_database">IMDB</a> |
             <a href="#" class="sort-btn"
@@ -100,60 +75,79 @@
               Tomatoes</a> | <span id="sort-indicator-up" style="display:
               inline">&uArr;</span>
             <span id="sort-indicator-down">&dArr;</span>
-          </th>
-        </tr>
-      </thead>
-      <tbody>
+      -->
+      Sorted by IMDB rating
+       </p>
+      </div>
+    </div>
+   </div>
+
+  <div id="ordered"></div>
+  <div class="container" id="film-items">
       {{#films}}
-      <tr>
-        <td>
-          <div class="poster-container">
-            <img src="{{omdb.Poster}}" class="poster"/>
+      <div class="row mt-3"
+           data-provider="{{provider}}"
+           {{#_ratings}}
+           data-{{source}}={{value}}
+           {{/_ratings}}
+           >
+           <div class="poster-container col-sm">
+             {{#omdb.Poster}}
+             <img src="{{omdb.Poster}}" class="poster" alt="{{title}}"/>
+             {{/omdb.Poster}}
+           </div>
+        <div class="info col-sm">
+          <div>
+            {{#omdb.Error}}
+            <!-- BBC -->
+            {{{raw.html}}}
+
+            {{#raw.overlayText}}
+            <!-- C4 -->
+            <a href="{{href}}">
+              <h2 class="programme__titles">{{title}}</h2>
+            </a>
+            <p>{{raw.overlayText}}</p>
+            <p>Available from <strong>{{provider}}</strong></p>
+            {{/raw.overlayText}}
+
+            <i style="color: #b10000">Couldn't find additional film info</i>
+            {{/omdb.Error}}
+
+            {{^omdb.Error}}
+
+            {{! film lookup was successful ! }}
+
+            <a href="{{href}}">
+              <h2 class="programme__titles">{{title}} ({{omdb.Year}})</h2>
+            </a>
+            <p>Available from <strong>{{provider}}</strong></p>
+            <small>
+              Certificate {{omdb.Rated}} | {{omdb.Runtime}} | {{omdb.Genre}} | {{omdb.Director}} |
+              <a href="https://www.imdb.com/title/{{omdb.imdbID}}/">IMDb</a>
+            </small>
+            <p>{{omdb.Plot}}</p>
+
+            {{/omdb.Error}}
           </div>
-        </td>
-        <td {{#_ratings}}
-							data-{{source}}={{value}}
-						{{/_ratings}}
-				>
-          <div class="info">
-            <div>
-              {{#omdb.Error}}
-              <i style="color: red">Couldn't find additional film info</i>
-              {{{bbc.html}}}
-              {{/omdb.Error}}
 
-              {{^omdb.Error}}
-              <a href="https://www.bbc.co.uk/iplayer/episode/{{bbc.id}}">
-                <h2 class="programme__titles">{{title}} ({{omdb.Year}})</h2>
-              </a>
-              <small>
-                {{omdb.Rated}} | {{omdb.Runtime}} | {{omdb.Genre}} | {{omdb.Director}} |
-                <a href="https://www.imdb.com/title/{{omdb.imdbID}}/">IMDb</a>
-              </small>
-              <p>{{omdb.Plot}}</p>
+          <div>
+            {{#omdb.Ratings}}
+            <strong>{{Value}}</strong> <small>{{Source}}</small><br />
+            {{/omdb.Ratings}}
+            <br />
+            <small>{{omdb.Awards}}</small>
 
-              {{/omdb.Error}}
-            </div>
-
-            <div>
-              {{#omdb.Ratings}}
-              <strong>{{Value}}</strong> <small>{{Source}}</small><br />
-              {{/omdb.Ratings}}
-              <br />
-              <small>{{omdb.Awards}}</small>
-
-              {{^omdb.Ratings}}
-              <a href="https://www.imdb.com/find?q={{title}}">Search IMDb</a>
-              {{/omdb.Ratings}}
-            </div>
+            {{^omdb.Ratings}}
+            <a href="https://www.imdb.com/find?q={{title}}">Search IMDb</a>
+            {{/omdb.Ratings}}
           </div>
-        </td>
-      </tr>
+        </div>
+      </div>
       {{/films}}
-      </tbody>
-    </table>
+    </div>
 
-    <p>Films currently available on BBC Iplayer ordered by IMDb rating. Film
+   <p>Films currently available on Channel4 and BBC iPlayer ordered by IMDb rating. Film
     lookup data provided by <a href="http://omdbapi.com">OMDb API</a>
     </p>
     <p>Updated {{updated}}</p>
@@ -183,12 +177,34 @@
     }
   });
 
+  $(".provider-switch").change(function(){
+    $("[data-provider="+$(this).val()+"]").toggle();
+  });
+
+  function sortFilms(metric){
+    let filmItems = $("#film-items .row");
+
+    $("#ordered").text("");
+
+    filmItems.sort(function(a, b){
+
+      return $(a).data(metric) - $(b).data(metric);
+    });
+
+    filmItems.each(function(){
+      $("#ordered").append($(this));
+    });
+
+    
+
+  }
+
   /* Slow */
   function sortTable(metric) {
     var table, rows, switching;
     var i, a, b, shouldSwitch, direction, switchcount = 0;
 
-    table = $("#main-table");
+    table = $("#film-items");
     table.hide();
 
     switching = true;
@@ -196,13 +212,12 @@
 
     while (switching) {
       switching = false;
-      rows = table.find("tr").get();
+      rows = table.find(".row:visible").get();
 
-      /* Start at 1 to ignore the th row */
-      for (i = 1; i < (rows.length - 1); i++) {
+      for (i = 0; i < (rows.length - 1); i++) {
         shouldSwitch = false;
-        a = $(rows[i]).children("[data-"+metric+"]").data(metric);
-        b = $(rows[i + 1]).children("[data-"+metric+"]").data(metric);
+        a = $(rows[i]).data(metric);
+        b = $(rows[i + 1]).data(metric);
 
         if (!a){
           a = 0;
